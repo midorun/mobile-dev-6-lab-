@@ -7,6 +7,7 @@ import UnauthenticatedUserNavigator from "navigation/UnauthenticatedUserNavigato
 import * as React from "react";
 import { useEffect, useState } from "react";
 import { ColorSchemeName } from 'react-native';
+import logInScreen from "screens/LogInScreen";
 import ModalScreen from 'screens/ModalScreen';
 import NotFoundScreen from 'screens/NotFoundScreen';
 import { RootStackParamList } from 'types';
@@ -34,7 +35,8 @@ function RootNavigator() {
   const [isAuthed, setIsAuthed] = useState(false)
 
   useEffect(() => {
-    checkAuth().then(res => setIsAuthed(res))
+    checkAuth().then(res => console.log(res))
+
   }, [])
 
   return (

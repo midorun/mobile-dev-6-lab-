@@ -2,38 +2,41 @@ const express = require("express");
 const db = require("./db.js");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-const { log } = require("util");
 
 const app = express();
 const PORT = 3000;
 app.listen(PORT);
 
 app.use(cors());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 
 const baseUrl = "/api";
 
 //Tags
 
-const baseUrlTags = baseUrl + "/tags";
-const baseUrlTagsId = `${baseUrlTags}/:id`;
+const baseUrlUsers = baseUrl + "/users";
+const baseUrlTagsId = `${baseUrlUsers}/:id`;
 
 //GET ALL TAGS
-app.get(baseUrlTags, (req, res) => {
+app.get(baseUrlUsers, (req, res) => {
   const sql = "select * from tags";
   const params = [];
 
-  db.all(sql, params, (err, data) => {
-    if (err) {
-      res.status(400).json({ error: err.message });
-      return;
-    }
-    res.json({
-      message: "success",
-      data,
-    });
-  });
+  // db.all(sql, params, (err, data) => {
+  //   if (err) {
+  //     res.status(400).json({error: err.message});
+  //     return;
+  //   }
+  //   res.json({
+  //     message: "success",
+  //     data,
+  //   });
+  // });
+
+  res.json({
+    message: "success"
+  })
 });
 
 // Get TAG BY ID
@@ -43,7 +46,7 @@ app.get(baseUrlTagsId, (req, res) => {
 
   db.all(sql, params, (err, data) => {
     if (err) {
-      res.status(400).json({ error: err.message });
+      res.status(400).json({error: err.message});
       return;
     }
     res.json({
@@ -54,8 +57,8 @@ app.get(baseUrlTagsId, (req, res) => {
 });
 
 // CREATE TAG
-app.post(baseUrlTags, (req, res, next) => {
-  const { text } = req.body;
+app.post(baseUrlUsers, (req, res, next) => {
+  const {text} = req.body;
   console.log(req.body);
 
   const data = {
@@ -67,7 +70,7 @@ app.post(baseUrlTags, (req, res, next) => {
 
   db.run(sql, params, function (err) {
     if (err) {
-      res.status(400).json({ error: err.message });
+      res.status(400).json({error: err.message});
       return;
     }
     res.json({
@@ -80,7 +83,7 @@ app.post(baseUrlTags, (req, res, next) => {
 
 //UPDATE TAG
 app.put(baseUrlTagsId, (req, res, next) => {
-  const { text } = req.body;
+  const {text} = req.body;
   console.log(req);
 
   const data = {
@@ -100,7 +103,7 @@ app.put(baseUrlTagsId, (req, res, next) => {
 
     function (err) {
       if (err) {
-        res.status(400).json({ error: res.message });
+        res.status(400).json({error: res.message});
         return;
       }
       res.json({
@@ -119,220 +122,16 @@ app.delete(baseUrlTagsId, (req, res, next) => {
 
   db.run(sql, params, function (err) {
     if (err) {
-      res.status(400).json({ error: res.message });
+      res.status(400).json({error: res.message});
       return;
     }
-    res.json({ message: "deleted", changes: this.changes });
-  });
-});
-
-//Notes
-
-const baseUrlNotes = baseUrl + "/notes";
-const baseUrlNotesId = `${baseUrlNotes}/:id`;
-
-const note_tag_insert_request = `INSERT INTO note_tag (noteId, tagId) VALUES (?,?)`;
-
-//GET ALL NOTES
-app.get(baseUrlNotes, (req, res) => {
-  const notesPromise = new Promise((resolve, reject) => {
-    db.all("select * from notes", [], function (err, data) {
-      resolve(data);
-    });
-  });
-
-  const tagsPromise = new Promise((resolve, reject) => {
-    db.all("select * from tags", [], function (err, data) {
-      resolve(data);
-    });
-  });
-
-  const noteTagPromise = new Promise((resolve, reject) => {
-    db.all("select * from note_tag", [], function (err, data) {
-      resolve(data);
-    });
-  });
-
-  Promise.all([notesPromise, tagsPromise, noteTagPromise]).then(
-    ([notes, tags, noteTag]) => {
-      const data = notes.map((note) => {
-        if (!note.tags) note.tags = [];
-        const { id } = note;
-        const tagIds = [];
-
-        noteTag.forEach(({ noteId, tagId }) => {
-          if (noteId === id) {
-            tagIds.push(tagId);
-          }
-        });
-        tagIds.forEach((tagId) =>
-          note.tags.push(tags.find((tag) => tag.id === tagId))
-        );
-
-        return note;
-      });
-
-      res.json({
-        message: "success",
-        data,
-      });
-    }
-  );
-});
-
-//GET NOTE BY ID
-app.get(baseUrlNotesId, (req, res) => {
-  const id = req.params.id;
-  const sql = "select * from notes where id = ?";
-  const params = [id];
-
-  const notesPromise = new Promise((resolve, reject) => {
-    db.all("select * from notes where id = ?", [id], function (err, data) {
-      resolve(data);
-    });
-  });
-
-  const tagsPromise = new Promise((resolve, reject) => {
-    db.all("select * from tags", [], function (err, data) {
-      resolve(data);
-    });
-  });
-
-  const noteTagPromise = new Promise((resolve, reject) => {
-    db.all(
-      "select * from note_tag where noteId = ?",
-      [id],
-      function (err, data) {
-        resolve(data);
-      }
-    );
-  });
-
-  Promise.all([notesPromise, tagsPromise, noteTagPromise]).then(
-    ([notes, tags, noteTag]) => {
-      const data = notes.map((note) => {
-        if (!note.tags) note.tags = [];
-        const { id } = note;
-        const tagIds = [];
-
-        noteTag.forEach(({ noteId, tagId }) => {
-          if (noteId === id) {
-            tagIds.push(tagId);
-          }
-        });
-        tagIds.forEach((tagId) =>
-          note.tags.push(tags.find((tag) => tag.id === tagId))
-        );
-
-        return note;
-      });
-
-      res.json({
-        message: "success",
-        data,
-      });
-    }
-  );
-});
-
-// CREATE NOTE
-app.post(baseUrlNotes, (req, res, next) => {
-  console.log(req.body)
-  const { title, text, time, tagsIds } = req.body;
-  const data = {
-    title,
-    text,
-    time,
-    tagsIds,
-  };
-
-  const sql = "INSERT INTO notes (title, text, time) VALUES (?,?,?)";
-  const params = [title, text, time];
-
-  db.run(sql, params, function (err) {
-    if (err) {
-      res.status(400).json({ error: err.message });
-      return;
-    }
-
-    const newNoteId = this.lastID;
-
-    tagsIds.forEach((tagId) => {
-      db.run(note_tag_insert_request, [this.lastID, tagId]);
-    });
-
-    res.json({
-      message: "success",
-      data,
-      id: this.lastID,
-    });
-  });
-});
-
-//UPDATE NOTE
-app.put(baseUrlNotesId, (req, res, next) => {
-  console.log("put");
-  const { title, text, time, tagsIds } = req.body;
-  const noteId = req.params.id;
-  const data = {
-    title,
-    text,
-    time,
-    tagsIds,
-  };
-
-  const sql = `
-    UPDATE notes set 
-    title = COALESCE(?,title), 
-    text = COALESCE(?,text),
-    time = COALESCE(?, time)
-    WHERE id = ?`;
-
-  const params = [title, text, time, noteId];
-
-  db.run(
-    sql,
-    params,
-
-    function (err) {
-      if (err) {
-        res.status(400).json({ error: res.message });
-        return;
-      }
-
-      db.run(`DELETE FROM note_tag WHERE noteId = ?`, noteId);
-
-      tagsIds.forEach((tagId) => {
-        db.run(note_tag_insert_request, [noteId, tagId]);
-      });
-
-      res.json({
-        message: "success",
-        data,
-        changes: this.changes,
-      });
-    }
-  );
-});
-
-//DELETE NOTE
-app.delete(baseUrlNotesId, (req, res, next) => {
-  const sql = "DELETE FROM notes WHERE id = ?";
-  const noteId = req.params.id;
-  const params = [noteId];
-
-  db.run(sql, params, function (err) {
-    if (err) {
-      res.status(400).json({ error: res.message });
-      return;
-    }
-
-    res.json({ message: "deleted", changes: this.changes });
+    res.json({message: "deleted", changes: this.changes});
   });
 });
 
 app.use((req, res) => {
   res.status(404);
+  res.json({message: 'pong'})
 });
 
 module.exports = app;

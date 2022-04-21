@@ -1,8 +1,16 @@
 import { NoteParams, TagParams } from 'api/types';
 
-const _rootUrl = 'http://172.20.10.3:3000/api';
+const IP = {
+  pc: '192.168.1.36',
+  phone: '172.20.10.3',
+  mac: '192.168.1.45'
+}
+
+const _rootUrl = `http://${IP.mac}:3000/api`;
 const _tagsUrl = '/tags';
 const _notesUrl = '/notes';
+
+console.log(_rootUrl)
 
 export const useApi = () => {
   const getData = async (url: string) => {
@@ -102,10 +110,8 @@ export const useApi = () => {
     return await updateData(`${_notesUrl}`, id, data);
   };
 
-  const checkAuth = async (): Promise<boolean> => {
-    return new Promise(resolve => {
-      setTimeout(() => resolve(true), 2000)
-    })
+  const checkAuth = async (): Promise<unknown> => {
+    return await getData('/fsdfsdf')
   }
 
   return {
