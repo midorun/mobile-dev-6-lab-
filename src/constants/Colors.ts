@@ -17,3 +17,7 @@ export default {
     tabIconSelected: tintColorDark,
   },
 };
+
+export enum ColorsEnum {
+  white = '#ffffff'
+}
