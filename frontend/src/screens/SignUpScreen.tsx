@@ -8,14 +8,13 @@ import { Image, Keyboard, KeyboardAvoidingView, Platform, Pressable, StyleSheet,
 import { HandleFieldChangeType, RootTabScreenProps } from "types";
 
 const SignUpScreen = ({navigation}: RootTabScreenProps<UnauthenticatedUserNavigatorScreensEnum.SignUp>) => {
-  const [imgUri, setImgUri] = useState<string>()
   const [formData, setFormData] = useState({
     name: '',
     surname: '',
     login: '',
     password: '',
     dateOfBirth: '',
-    photo: ''
+    photoUri: ''
   })
 
   //TODO create type for this
@@ -67,7 +66,7 @@ const SignUpScreen = ({navigation}: RootTabScreenProps<UnauthenticatedUserNaviga
     });
 
     if (!result.cancelled) {
-      setImgUri(result.uri);
+      handleFieldChange('photoUri', result.uri);
     }
   }
 
@@ -88,10 +87,10 @@ const SignUpScreen = ({navigation}: RootTabScreenProps<UnauthenticatedUserNaviga
       />
       <View style={styles.profileImgContainer}>
         {
-          imgUri ?
+          formData['photoUri'] ?
             <Pressable onPress={handleLoadPhotoBtn}>
               <Image
-                source={{uri: imgUri}}
+                source={{uri: formData['photoUri']}}
                 style={styles.profileImg}
               />
             </Pressable> :
