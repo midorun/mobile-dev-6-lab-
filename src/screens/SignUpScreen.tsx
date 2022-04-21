@@ -7,16 +7,6 @@ import { useState } from "react";
 import { Image, Keyboard, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, View } from "react-native";
 import { HandleFieldChangeType, RootTabScreenProps } from "types";
 
-
-// export type FormDataType = {
-//   name: string,
-//   surname: string,
-//   login: string,
-//   password: string,
-//   dateOfBirth: string,
-//   photo: string
-// }
-
 const SignUpScreen = ({navigation}: RootTabScreenProps<UnauthenticatedUserNavigatorScreensEnum.SignUp>) => {
   const [imgUri, setImgUri] = useState<string>()
   const [formData, setFormData] = useState({

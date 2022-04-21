@@ -1,6 +1,5 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import TabBarIcon from "components/TabBarIcon";
-import useColorScheme from "hooks/useColorScheme";
 import * as React from "react";
 import HomeScreen from "screens/HomeScreen";
 import MusicPlayerScreen from "screens/MusicPlayerScreen";
@@ -21,7 +20,6 @@ const {Home, MusicPlayer, Settings} = AuthenticatedUserNavigatorScreensEnum
 const BottomTab = createBottomTabNavigator<RootBottomTabParamList>();
 
 const UnauthenticatedUserNavigator = () => {
-  const colorScheme = useColorScheme();
 
   return (
     <BottomTab.Navigator
@@ -66,15 +64,6 @@ const UnauthenticatedUserNavigator = () => {
           tabBarIcon: ({color}) => <TabBarIcon name="gear" color={color}/>,
         }}
       />
-
-      {/*<BottomTab.Screen*/}
-      {/*  name={SignUp}*/}
-      {/*  component={SignUpScreen}*/}
-      {/*  options={{*/}
-      {/*    title: SignUp,*/}
-      {/*    tabBarIcon: ({color}) => <TabBarIcon name="user-plus" color={color}/>,*/}
-      {/*  }}*/}
-      {/*/>*/}
     </BottomTab.Navigator>
   );
 }
