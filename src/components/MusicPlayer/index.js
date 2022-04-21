@@ -1,7 +1,6 @@
 import React from "react";
 import {
   Dimensions,
-  Image,
   Slider,
   StyleSheet,
   Text,
@@ -60,9 +59,6 @@ const PLAYLIST = [
   )
 ];
 
-const ICON_THROUGH_EARPIECE = "speaker-phone";
-const ICON_THROUGH_SPEAKER = "speaker";
-
 const ICON_TRACK_1 = new Icon(require("./assets/images/track.png"), 166, 5);
 const ICON_THUMB_1 = new Icon(require("./assets/images/thumb.png"), 15, 15);
 
@@ -75,7 +71,6 @@ const DISABLED_OPACITY = 0.5;
 const FONT_SIZE = 14;
 const LOADING_STRING = "... loading ...";
 const BUFFERING_STRING = "...buffering...";
-const RATE_SCALE = 3.0;
 const VIDEO_CONTAINER_HEIGHT = (DEVICE_HEIGHT * 2.0) / 5.0 - FONT_SIZE * 2;
 
 export default class MusicPlayer extends React.Component {
@@ -152,9 +147,8 @@ export default class MusicPlayer extends React.Component {
       await this._video.loadAsync(source, initialStatus);
       // this._video.onPlaybackStatusUpdate(this._onPlaybackStatusUpdate);
       this.playbackInstance = this._video;
-      const status = await this._video.getStatusAsync();
     } else {
-      const {sound, status} = await Audio.Sound.createAsync(
+      const {sound} = await Audio.Sound.createAsync(
         source,
         initialStatus,
         this._onPlaybackStatusUpdate
@@ -264,7 +258,7 @@ export default class MusicPlayer extends React.Component {
       videoHeight: VIDEO_CONTAINER_HEIGHT
     });
 
-    this._loadNewPlaybackInstance(playing);
+    await this._loadNewPlaybackInstance(playing);
   }
 
   _onPlayPausePressed = () => {
@@ -297,12 +291,6 @@ export default class MusicPlayer extends React.Component {
     }
   };
 
-  _onMutePressed = () => {
-    if (this.playbackInstance != null) {
-      this.playbackInstance.setIsMutedAsync(!this.state.muted);
-    }
-  };
-
   _onLoopPressed = () => {
     if (this.playbackInstance != null) {
       this.playbackInstance.setIsLoopingAsync(
@@ -311,31 +299,7 @@ export default class MusicPlayer extends React.Component {
     }
   };
 
-  _onVolumeSliderValueChange = value => {
-    if (this.playbackInstance != null) {
-      this.playbackInstance.setVolumeAsync(value);
-    }
-  };
-
-  _trySetRate = async (rate, shouldCorrectPitch) => {
-    if (this.playbackInstance != null) {
-      try {
-        await this.playbackInstance.setRateAsync(rate, shouldCorrectPitch);
-      } catch (error) {
-        // Rate changing could not be performed, possibly because the client's Android API is too old.
-      }
-    }
-  };
-
-  _onRateSliderSlidingComplete = async value => {
-    this._trySetRate(value * RATE_SCALE, this.state.shouldCorrectPitch);
-  };
-
-  _onPitchCorrectionPressed = async value => {
-    this._trySetRate(this.state.rate, !this.state.shouldCorrectPitch);
-  };
-
-  _onSeekSliderValueChange = value => {
+  _onSeekSliderValueChange = () => {
     if (this.playbackInstance != null && !this.isSeeking) {
       this.isSeeking = true;
       this.shouldPlayAtEndOfSeek = this.state.shouldPlay;
@@ -396,39 +360,6 @@ export default class MusicPlayer extends React.Component {
     }
     return "";
   }
-
-  _onPosterPressed = () => {
-    this.setState({poster: !this.state.poster});
-  };
-
-  _onUseNativeControlsPressed = () => {
-    this.setState({useNativeControls: !this.state.useNativeControls});
-  };
-
-  _onFullscreenPressed = () => {
-    try {
-      this._video.presentFullscreenPlayer();
-    } catch (error) {
-      console.log(error.toString());
-    }
-  };
-
-  _onSpeakerPressed = () => {
-    this.setState(
-      state => {
-        return {throughEarpiece: !state.throughEarpiece};
-      },
-      ({throughEarpiece}) =>
-        Audio.setAudioModeAsync({
-          allowsRecordingIOS: false,
-          interruptionModeIOS: Audio.INTERRUPTION_MODE_IOS_DO_NOT_MIX,
-          playsInSilentModeIOS: true,
-          shouldDuckAndroid: true,
-          interruptionModeAndroid: Audio.INTERRUPTION_MODE_ANDROID_DO_NOT_MIX,
-          playThroughEarpieceAndroid: throughEarpiece
-        })
-    );
-  };
 
   render() {
     return !this.state.fontLoaded ? (

@@ -1,5 +1,5 @@
 import TabBarIcon from "components/TabBarIcon";
-import { Text, View } from 'components/Themed';
+import { Text, View } from 'react-native';
 import { StyleSheet } from 'react-native';
 import { RootTabScreenProps } from "types";
 
