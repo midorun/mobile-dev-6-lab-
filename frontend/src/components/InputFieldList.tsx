@@ -23,7 +23,7 @@ export type FieldListProps = {
   fieldStyles?: StyleProp<ViewStyle | TextStyle>
 }
 
-const FieldList: FC<FieldListProps> = ({fields, handleFieldChange, styles, fieldStyles}) => {
+const InputFieldList: FC<FieldListProps> = ({fields, handleFieldChange, styles, fieldStyles}) => {
 
   return (
     <View style={styles}>
@@ -45,4 +45,4 @@ const FieldList: FC<FieldListProps> = ({fields, handleFieldChange, styles, field
   )
 }
 
-export default FieldList
+export default InputFieldList

@@ -19,5 +19,6 @@ export default {
 };
 
 export enum ColorsEnum {
-  white = '#ffffff'
+  white = '#ffffff',
+  black = '#000000',
 }

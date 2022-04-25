@@ -1,3 +1,4 @@
+import AuthProvider from "providers/AuthProvider";
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import useCachedResources from './src/hooks/useCachedResources';
@@ -12,9 +13,11 @@ export default function App() {
     return null;
   } else {
     return (
-      <SafeAreaProvider>
-        <Navigation colorScheme={colorScheme}/>
-      </SafeAreaProvider>
+      <AuthProvider>
+        <SafeAreaProvider>
+          <Navigation colorScheme={colorScheme}/>
+        </SafeAreaProvider>
+      </AuthProvider>
     );
   }
 }

@@ -4,10 +4,10 @@ import { useApi } from "hooks/useApi";
 import AuthenticatedUserNavigator from "navigation/AuthenticatedUserNavigator";
 import LinkingConfiguration from 'navigation/LinkingConfiguration';
 import UnauthenticatedUserNavigator from "navigation/UnauthenticatedUserNavigator";
+import { AuthContext, useAuth } from "providers/AuthProvider";
+import { useContext } from "react";
 import * as React from "react";
-import { useEffect, useState } from "react";
 import { ColorSchemeName } from 'react-native';
-import logInScreen from "screens/LogInScreen";
 import ModalScreen from 'screens/ModalScreen';
 import NotFoundScreen from 'screens/NotFoundScreen';
 import { RootStackParamList } from 'types';
@@ -31,13 +31,7 @@ const {Navigator, Screen, Group} = Stack;
 
 function RootNavigator() {
   const {checkAuth} = useApi()
-
-  const [isAuthed, setIsAuthed] = useState(false)
-
-  useEffect(() => {
-    checkAuth().then(res => console.log(res))
-
-  }, [])
+  const {isAuthed} = useAuth()
 
   return (
     <Navigator>
@@ -50,7 +44,7 @@ function RootNavigator() {
         <Screen name="Modal" component={ModalScreen}/>
       </Group>
     </Navigator>
-  );
+  )
 }
 
 

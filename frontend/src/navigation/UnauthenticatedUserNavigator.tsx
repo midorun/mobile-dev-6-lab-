@@ -29,7 +29,6 @@ const UnauthenticatedUserNavigator = () => {
     <BottomTab.Navigator
       initialRouteName={LogIn}
     >
-
       <BottomTab.Screen
         name={LogIn}
         component={LogInScreen}

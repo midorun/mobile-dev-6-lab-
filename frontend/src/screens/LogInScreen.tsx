@@ -1,14 +1,19 @@
-import FieldList from "components/FieldList";
+import InputFieldList from "components/InputFieldList";
 import { ColorsEnum } from "constants/Colors";
+import { LoginUserDataType, useApi, } from "hooks/useApi";
 import { UnauthenticatedUserNavigatorScreensEnum } from "navigation/UnauthenticatedUserNavigator";
-import { useState } from "react";
+import { AuthContext, useAuth } from "providers/AuthProvider";
+import { useContext, useState } from "react";
 import { KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text } from "react-native";
 import { HandleFieldChangeType, RootTabScreenProps } from "types";
 
 const LogInScreen = ({navigation}: RootTabScreenProps<UnauthenticatedUserNavigatorScreensEnum.LogIn>) => {
-  const [formData, setFormData] = useState({
-    login: '',
-    password: '',
+  const {login} = useApi()
+  const {setUserData} = useAuth()
+
+  const [formData, setFormData] = useState<LoginUserDataType>({
+    login: "",
+    password: ""
   })
 
   const fields: { placeholder: string, key: keyof typeof formData }[] = [
@@ -26,8 +31,9 @@ const LogInScreen = ({navigation}: RootTabScreenProps<UnauthenticatedUserNavigat
     setFormData({...formData, [fieldKey]: newValue})
   }
 
-  const handleLogInBtnPress = () => {
-    console.log('log in')
+  const handleLogInBtnPress = async () => {
+    const userData = await login(formData)
+    setUserData(userData)
   }
 
   return (
@@ -35,7 +41,7 @@ const LogInScreen = ({navigation}: RootTabScreenProps<UnauthenticatedUserNavigat
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={styles.container}
     >
-      <FieldList
+      <InputFieldList
         fieldStyles={styles.input}
         fields={fields.map(field => ({...field, value: formData[field.key]}))}
         handleFieldChange={handleFieldChange}

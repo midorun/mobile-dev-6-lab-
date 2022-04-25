@@ -1,16 +1,35 @@
-import { NoteParams, TagParams } from 'api/types';
+import * as AsyncStorage from "asyncStorage";
 
 const IP = {
   pc: '192.168.1.36',
   phone: '172.20.10.3',
-  mac: '192.168.1.45'
+  mac: '192.168.1.52'
 }
 
-const _rootUrl = `http://${IP.mac}:3000/api`;
+const _rootUrl = `http://${IP.phone}:3000/api`;
 const _tagsUrl = '/tags';
 const _notesUrl = '/notes';
 
-console.log(_rootUrl)
+export enum UserFields {
+  first_name,
+  last_name,
+  login,
+  password,
+  date_of_birth,
+  photo_uri,
+  token
+}
+
+export type UserDataType = {
+  [key in keyof typeof UserFields]: string;
+} & { id: number }
+
+export type LoginUserDataType = Pick<UserDataType, 'login' | 'password'>
+
+
+const headers: { [key: string]: string } = {
+  'Content-Type': 'application/json',
+}
 
 export const useApi = () => {
   const getData = async (url: string) => {
@@ -26,17 +45,16 @@ export const useApi = () => {
   };
 
   const postData = async (url: string, data: unknown) => {
+
     const response = await fetch(`${_rootUrl}${url}`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
+      headers,
+      body: JSON.stringify(data)
     });
 
     if (!response.ok) {
       throw new Error(
-        `Couldn't post data to ${url}, status ${response.status}`
+        `Couldn't post data to ${url}, status ${response.status}, message: ${await response.text()}`
       );
     }
     return await response.json();
@@ -57,10 +75,8 @@ export const useApi = () => {
 
   const updateData = async (url: string, id: number, data: unknown) => {
     const response = await fetch(`${_rootUrl}${url}/${id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      method: 'PATCH',
+      headers,
       body: JSON.stringify(data),
     });
 
@@ -70,61 +86,33 @@ export const useApi = () => {
     return await response.json();
   };
 
-  const getAllTags = async () => {
-    return await getData(`${_tagsUrl}`);
-  };
+  const register = async (params: UserDataType): Promise<UserDataType> => {
+    return await postData('/register', params).then(async res => {
+      await AsyncStorage.storeData('x-access-token', res.token)
+      return res
+    })
+  }
 
-  const getTag = async (id: number) => {
-    return await getData(`${_tagsUrl}/${id}`);
-  };
+  const login = async (params: LoginUserDataType): Promise<UserDataType> => {
+    return await postData('/login', params).then(async res => {
+      await AsyncStorage.storeData('x-access-token', res.token)
+      console.log(res)
+      return res
+    })
+  }
 
-  const postTag = async (data: TagParams) => {
-    return await postData(`${_tagsUrl}`, data);
-  };
+  const checkAuth = async (params: { token: string }) => {
+    return postData('/check-auth', params)
+  }
 
-  const deleteTag = async (id: number) => {
-    return await deleteData(`${_tagsUrl}`, id);
-  };
-
-  const updateTag = async (id: number, data: TagParams) => {
-    return await updateData(`${_tagsUrl}`, id, data);
-  };
-
-  const getAllNotes = async () => {
-    return await getData(`${_notesUrl}`);
-  };
-
-  const getNote = async (id: number) => {
-    return await getData(`${_notesUrl}/${id}`);
-  };
-
-  const postNote = async (data: NoteParams) => {
-    return await postData(`${_notesUrl}`, data);
-  };
-
-  const deleteNote = async (id: number) => {
-    return await deleteData(`${_notesUrl}`, id);
-  };
-
-  const updateNote = async (id: number, data: NoteParams) => {
-    return await updateData(`${_notesUrl}`, id, data);
-  };
-
-  const checkAuth = async (): Promise<unknown> => {
-    return await getData('/fsdfsdf')
+  const updateUserData = async (params: Partial<Pick<UserDataType, 'password' | 'photo_uri'>>, id: number) => {
+    return updateData(`/update`, id, params)
   }
 
   return {
-    getAllTags,
-    getTag,
-    postTag,
-    deleteTag,
-    updateTag,
-    getAllNotes,
-    getNote,
-    postNote,
-    deleteNote,
-    updateNote,
+    register,
+    login,
     checkAuth,
+    updateUserData
   };
 };

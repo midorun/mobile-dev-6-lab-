@@ -1,13 +1,16 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import TabBarIcon from "components/TabBarIcon";
+import { AuthContext } from "providers/authProvider";
+import { useContext } from "react";
 import * as React from "react";
 import HomeScreen from "screens/HomeScreen";
 import MusicPlayerScreen from "screens/MusicPlayerScreen";
+import SettingsScreen from "screens/SettingsScreen";
 import { RootBottomTabParamList, RootTabScreenProps } from "types";
 
 export enum AuthenticatedUserNavigatorScreensEnum {
   Home = 'Home',
-  MusicPlayer = 'Music Player',
+  MusicPlayer = 'MusicPlayer',
   Settings = 'Settings',
 }
 
@@ -19,13 +22,11 @@ const {Home, MusicPlayer, Settings} = AuthenticatedUserNavigatorScreensEnum
 
 const BottomTab = createBottomTabNavigator<RootBottomTabParamList>();
 
-const UnauthenticatedUserNavigator = () => {
-
+const AuthenticatedUserNavigator = () => {
   return (
     <BottomTab.Navigator
       initialRouteName={Home}
     >
-
       <BottomTab.Screen
         name={Home}
         component={HomeScreen}
@@ -49,7 +50,7 @@ const UnauthenticatedUserNavigator = () => {
         })}
       />
       <BottomTab.Screen
-        name={'MusicPlayer'}
+        name={MusicPlayer}
         component={MusicPlayerScreen}
         options={{
           title: MusicPlayer,
@@ -57,8 +58,8 @@ const UnauthenticatedUserNavigator = () => {
         }}
       />
       <BottomTab.Screen
-        name={'Settings'}
-        component={MusicPlayerScreen}
+        name={Settings}
+        component={SettingsScreen}
         options={{
           title: Settings,
           tabBarIcon: ({color}) => <TabBarIcon name="gear" color={color}/>,
@@ -68,4 +69,4 @@ const UnauthenticatedUserNavigator = () => {
   );
 }
 
-export default UnauthenticatedUserNavigator;
+export default AuthenticatedUserNavigator;

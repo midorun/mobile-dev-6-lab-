@@ -1,31 +1,29 @@
-import FieldList from "components/FieldList";
+import InputFieldList from "components/InputFieldList";
 import TabBarIcon from "components/TabBarIcon";
 import { ColorsEnum } from "constants/Colors";
 import * as ImagePicker from 'expo-image-picker';
+import { useApi, UserDataType } from "hooks/useApi";
 import { UnauthenticatedUserNavigatorScreensEnum } from "navigation/UnauthenticatedUserNavigator";
 import { useState } from "react";
 import { Image, Keyboard, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, View } from "react-native";
 import { HandleFieldChangeType, RootTabScreenProps } from "types";
 
 const SignUpScreen = ({navigation}: RootTabScreenProps<UnauthenticatedUserNavigatorScreensEnum.SignUp>) => {
-  const [formData, setFormData] = useState({
-    name: '',
-    surname: '',
-    login: '',
-    password: '',
-    dateOfBirth: '',
-    photoUri: ''
+  const {register} = useApi()
+
+  const [formData, setFormData] = useState<UserDataType>({
+    date_of_birth: "", first_name: "", last_name: "", login: "", password: "", photo_uri: ""
   })
 
   //TODO create type for this
   const fields: { placeholder: string, key: keyof typeof formData }[] = [
     {
       placeholder: 'Имя',
-      key: 'name'
+      key: 'first_name'
     },
     {
       placeholder: 'Фамилия',
-      key: 'surname'
+      key: 'last_name'
     },
     {
       placeholder: 'Логин',
@@ -37,13 +35,13 @@ const SignUpScreen = ({navigation}: RootTabScreenProps<UnauthenticatedUserNaviga
     },
     {
       placeholder: 'Дата рождения: дд.мм.гггг',
-      key: 'dateOfBirth'
+      key: 'date_of_birth'
     },
   ]
 
   const handleFieldChange: HandleFieldChangeType<typeof formData> = (fieldKey, newValue) => {
-    if (fieldKey === 'dateOfBirth') {
-      const oldValue = formData['dateOfBirth']
+    if (fieldKey === 'date_of_birth') {
+      const oldValue = formData['date_of_birth']
 
       const oldValueLength = oldValue.length
       const newValueLength = newValue.length
@@ -66,12 +64,13 @@ const SignUpScreen = ({navigation}: RootTabScreenProps<UnauthenticatedUserNaviga
     });
 
     if (!result.cancelled) {
-      handleFieldChange('photoUri', result.uri);
+      handleFieldChange('photo_uri', result.uri);
     }
   }
 
   const handleSignUpBtnPress = () => {
-    console.log('sign up')
+    console.log(formData)
+    register(formData).then(res => console.log(res))
   }
 
   return (
@@ -80,17 +79,17 @@ const SignUpScreen = ({navigation}: RootTabScreenProps<UnauthenticatedUserNaviga
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={styles.container}
     >
-      <FieldList
+      <InputFieldList
         fieldStyles={styles.input}
         fields={fields.map(field => ({...field, value: formData[field.key]}))}
         handleFieldChange={handleFieldChange}
       />
       <View style={styles.profileImgContainer}>
         {
-          formData['photoUri'] ?
+          formData['photo_uri'] ?
             <Pressable onPress={handleLoadPhotoBtn}>
               <Image
-                source={{uri: formData['photoUri']}}
+                source={{uri: formData['photo_uri']}}
                 style={styles.profileImg}
               />
             </Pressable> :
